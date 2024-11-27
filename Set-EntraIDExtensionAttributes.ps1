@@ -127,7 +127,6 @@ function Set-EntraIDExtensionAttributes {
         try {
             # Send the updates to Entra ID
             Update-MgDevice -DeviceId $AzureID -BodyParameter $params
-            Add-Content -Path $SetIntuneExtensionLogFile -Value "Successfully updated attributes for: $computerName"
         } catch {
             Add-Content -Path $SetIntuneExtensionLogFile -Value "Error occurred while trying to update: $computerName - $_"
         }
