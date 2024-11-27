@@ -87,7 +87,7 @@ function Get-Extensionattributes {
 
 }# function
 
-function Set-EntraIDExtensionAttributes {
+function Compare-ExtensionAttributes {
     param (
         [string]$AzureID,
         [string]$Office,
@@ -127,6 +127,7 @@ function Set-EntraIDExtensionAttributes {
         try {
             # Send the updates to Entra ID
             Update-MgDevice -DeviceId $AzureID -BodyParameter $params
+            Add-Content -Path $SetIntuneExtensionLogFile -Value "Successfully updated attributes for: $computerName"
         } catch {
             Add-Content -Path $SetIntuneExtensionLogFile -Value "Error occurred while trying to update: $computerName - $_"
         }
@@ -152,7 +153,7 @@ if((Test-Path -Path $SetIntuneExtensionLogFile) -eq $false){
 Add-Content -path $SetIntuneExtensionLogFile -Value "Started processing at [$([DateTime]::Now)]."
 
 #Remove older logs
-$OldFiles = Get-ChildItem -Path $logpath -Filter "Set-EntraIDExtensionAttributes*" | Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-7) }
+$OldFiles = Get-ChildItem -Path $logpath -Filter "Compare-ExtensionAttributes*" | Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-7) }
 
 #remove files older than 7 days
 foreach ($file in $OldFiles) {
@@ -224,7 +225,7 @@ foreach ($computer in $ADComputerList) {
          
 
             # Call the function to update extension attributes
-            Set-EntraIDExtensionAttributes -AzureID $AzureID `
+            Compare-ExtensionAttributes -AzureID $AzureID `
                                             -Office $Office `
                                             -Department $Department `
                                             -Devicetype $Devicetype `
