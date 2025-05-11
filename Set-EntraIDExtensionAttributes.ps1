@@ -155,7 +155,7 @@ Connect-mgGraph
 # Get on-premises computer list
 $ADComputerList = Get-ADComputer -Filter * -Properties Description
 
-Add-Content -Path $SetIntuneExtensionLogFile -Value "Attempting to update the following computers: "
+Write-host -Path $SetIntuneExtensionLogFile -Value "Attempting to update the following computers: "
 
 # Iterate through each computer in the list
 foreach($computer in $ADComputerList){
