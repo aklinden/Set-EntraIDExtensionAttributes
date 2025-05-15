@@ -76,7 +76,7 @@ function Get-Extensionattributes {
 
 }# function
 
-function Compare-ExtensionAttributes {
+function Compare-EntraIDExtensionAttributes {
     [CmdletBinding()]
     param (
         [string]$AzureID,
@@ -126,8 +126,8 @@ function Compare-ExtensionAttributes {
 
 ### LOGGING BLOCK ### 
 $date = Get-Date -Format 'MM-dd HH-mm'
-$logpath = "$home\documents\SetEntraIDExtensionAttributes"
-$TranscriptFile = "Set-EntraIDExtensionAttributesTranscript_$date.log"
+$logpath = "$home\documents\"
+$TranscriptFile = "SetEntraIDExtensionAttributesTranscript_$date.log"
 
 $SetIntuneExtensionTranscript = Join-Path -Path $logpath -ChildPath $TranscriptFile
 
@@ -137,7 +137,7 @@ Start-Transcript -Path $SetIntuneExtensionTranscript
 Write-Host "Started processing at [$([DateTime]::Now)]."
 
 #Remove older logs
-$OldFiles = Get-ChildItem -Path $logpath -Filter "Compare-ExtensionAttributes*" | Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-7) }
+$OldFiles = Get-ChildItem -Path $logpath -Filter "SetEntraIDExtensionAttributes*" | Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-7) }
 
 #remove files older than 7 days
 foreach ($file in $OldFiles) {
@@ -155,7 +155,7 @@ Connect-mgGraph
 # Get on-premises computer list
 $ADComputerList = Get-ADComputer -Filter * -Properties Description
 
-Write-host -Path $SetIntuneExtensionLogFile -Value "Attempting to update the following computers: "
+Write-host "Attempting to update the following computers: "
 
 # Iterate through each computer in the list
 foreach($computer in $ADComputerList){
@@ -217,7 +217,7 @@ foreach($computer in $ADComputerList){
             }
 
             # Call the function to update extension attributes
-            Compare-ExtensionAttributes @compareParams
+            Compare-EntraIDExtensionAttributes @compareParams
         }#If $response
     }#foreach $computer in $AzureObject
 }#foreach $computer in $ADComputerList
