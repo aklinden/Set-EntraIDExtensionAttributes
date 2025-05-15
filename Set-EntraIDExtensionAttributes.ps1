@@ -163,6 +163,8 @@ foreach($computer in $ADComputerList){
     $ADName = $computer.Name
     $ADGUID = ($computer.objectguid).guid
     $Azureobject = Get-MgDevice -Filter "startswith(displayName, '$ADName')" -ConsistencyLevel eventual
+
+    $ADName
     
     # Extensionattributes
     $Attributes = Get-Extensionattributes -computername $ADName
