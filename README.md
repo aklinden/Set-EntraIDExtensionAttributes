@@ -28,20 +28,35 @@ Ensure the following requirements are met before running the script:
 
 ### Introduction
 
-The idea for this script came from someone in the software deployment team who wasn't satisfied with the way dynamic groups were built in Intune. Rather than some kind of real property that marked a device from PDX, we were going off of rules like `(device.deviceName -startsWith "P-") -or (device.deviceName -startsWith "PDX")`. 97% of the time, this was perfectly fine, but there were definitely outliers. After some research, he found that extensionAttributes could be used, and they'd gone unused for device objects on prem up until this point. 
-
-Seems that most powershell scripts seem to start this way, right? A single sentence that perfectly describes how to get to the goal - "Just populate the extension attributes".
+The idea for this script came from someone in our software deployment team who wasn't satisfied with the way we were building dynamic groups in Entra ID. Rather than some kind of real property that marked a device from PDX, we were going off of rules like `(device.deviceName -startsWith "P-") -or (device.deviceName -startsWith "PDX")`. This was fine for the most part, but what happens when someone names a device incorrectly? This method left a lot of room for human error, and the dynamic groups weren't matching up as closely to our AD groups as we wanted them to. After some research, he found that extensionAttributes could be used, and they'd gone unused for device objects on prem up until this point. 
 
 ### Creating your extensionAttributes
 
  After talking it over we decided that the three attributes that made the most sense were Office, Department, and device type. The location of a device object in our AD hierarchy would give us all of this info, so it was just a matter of retrieving the data - the `Get-ExtensionAttributes` function.
 
- Since the `distinguishedname` property contains the path to the object with each of the properties I needed, I had to learn how to actually extract this information and it had to be dynamic. Up until this point, I hadn't really used a switch construct for much of anything (and I've probably only used it once or twice since) but it seemed to be perfect for the job. 
+ Since the `distinguishedname` property contains each of the properties I needed, I had to learn how to actually extract this information and it had to be dynamic. Up until this point, I hadn't really used a switch construct for much of anything (and I've probably only used it once or twice since) but it seemed to be perfect for the job. 
  
  "Here's a list of offices, if you see one of these, that's the device's office."
 
- Now that I've created a way to pull the data I wanted, I figured the next (and last) step would be using `Set-ADComputer` to set the extensionAttributes on the on prem computer object and Entra Connect would take care of the rest. We just needed to tick off the box in the wizard, force a sync, and we'd be changing our dynamic groups in no time. 🙃 "Just populate the extension attributes".
+ Now that I've created a way to pull the data I wanted, I figured the next (and last) step would be using `Set-ADComputer` to set the extensionAttributes on the on prem computer object and Entra Connect would take care of the rest. We just needed to tick off the box in the wizard, force a sync, and we'd be changing our dynamic groups in no time. 
 
  ### Fine. We'll take the long way around.
 
- 
+ After discovering that there was no option to include extensionAttributes in device properties that Entra Connect could sync, I began to look for a way to accomplish this through the Graph API. At the time, I had only been using the Powershell modules and was struggling to find a way to read and write a device objects extensionAttributes in Entra ID. I could see the extensionAttributes through the Graph Explorer, but couldn't work out how to access them through `Get-MgDevice` in order make the comparison with the results returned by `Get-ExtensionAttributes`.
+
+ Eventually, I landed on an API the following HTTP request that would then be turned into a custom PSobject 
+
+ <pre> ```powershell $filter = "$($AzureID)?`$select=id,deviceid,displayname,extensionAttributes,trustType" $uri = "https://graph.microsoft.com/v1.0/devices/$filter" $response = Invoke-MgGraphRequest -Method GET -Uri $uri ``` </pre>
+
+
+
+
+
+
+
+
+  Side note: Months later, (while writing this) I discovered how to do this through `Get-MgDevice`: 
+
+  `$test = Get-MgDevice -Filter "startswith(displayName, '$env:COMPUTERNAME')" -ConsistencyLevel eventual`
+  `$test[0].AdditionalProperties.extensionAttributes`
+
