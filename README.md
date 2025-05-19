@@ -46,7 +46,7 @@ The idea for this script came from someone in our software deployment team who w
 
  Eventually, I landed on an API the following HTTP request that would then be turned into a custom PSobject 
 
- <pre> ```powershell $filter = "$($AzureID)?`$select=id,deviceid,displayname,extensionAttributes,trustType" $uri = "https://graph.microsoft.com/v1.0/devices/$filter" $response = Invoke-MgGraphRequest -Method GET -Uri $uri ``` </pre>
+ <pre> $filter = "$($AzureID)?`$select=id,deviceid,displayname,extensionAttributes,trustType" $uri = "https://graph.microsoft.com/v1.0/devices/$filter" $response = Invoke-MgGraphRequest -Method GET -Uri $uri</pre>
 
 
 
