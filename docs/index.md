@@ -45,7 +45,7 @@ The idea for this script came from someone in our software deployment team who w
  $uri = "https://graph.microsoft.com/v1.0/devices/$filter" 
  $response = Invoke-MgGraphRequest -Method GET -Uri $uri</pre>  
 
-  > [!NOTE]
+  > **Note:**
   > Months later, (while writing this) I discovered how to do this through `Get-MgDevice`:
   > <pre>$test = Get-MgDevice -Filter "startswith(displayName, '$env:COMPUTERNAME')" -ConsistencyLevel eventual
   > $test[0].AdditionalProperties.extensionAttributes</pre>
